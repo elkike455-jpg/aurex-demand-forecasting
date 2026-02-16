@@ -85,20 +85,22 @@ profile_default/
 ipython_config.py
 
 ########################################
-# ML artifacts (IMPORTANT)
+# ML artifacts (MODELOS ENTRENADOS)
 ########################################
 artifacts/
 models/*.h5
 models/*.keras
 models/*.pkl
 models/*.joblib
+models/*.pt
+models/*.pth
 
 ########################################
-# Data (optional: ajusta según política)
+# DATASETS PESADOS (CRÍTICO PARA GITHUB)
 ########################################
-# Si NO quieres subir datos:
-# data/raw/
-# data/processed/
+data/raw/
+data/processed/
+*.csv
 
 ########################################
 # Framework-specific
@@ -167,18 +169,10 @@ build/
 # Misc tools
 ########################################
 
-# pyenv
-# .python-version
-
 # pipenv / poetry / pdm
-# Pipfile.lock
-# poetry.lock
 .pdm-python
 .pdm-build/
 __pypackages__/
-
-# Pixi
-.pixi/
 
 # Cursor
 .cursorignore
@@ -188,6 +182,3 @@ __pypackages__/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-
-data/raw/
-*.csv
