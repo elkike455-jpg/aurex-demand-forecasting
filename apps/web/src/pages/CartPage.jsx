@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 
 export function CartPage() {
+  const [paymentMethod, setPaymentMethod] = useState("card");
   const { items, removeItem, updateQuantity, totalPrice, totalItems } = useCart();
+  const total = totalPrice + (totalPrice >= 99 ? 0 : 9.99);
 
   if (items.length === 0) {
     return (
@@ -63,7 +66,7 @@ export function CartPage() {
                       onClick={() => updateQuantity(product.id, quantity - 1)}
                       className="h-9 w-9 rounded-lg border-2 border-slate-200 font-bold text-slate-600 hover:bg-slate-50"
                     >
-                      −
+                      -
                     </button>
                     <span className="w-10 text-center font-semibold">{quantity}</span>
                     <button
@@ -95,14 +98,47 @@ export function CartPage() {
           <div className="border-t border-slate-200 my-4" />
           <div className="flex justify-between text-lg font-bold text-slate-900 mb-6">
             <span>Total</span>
-            <span>${(totalPrice + (totalPrice >= 99 ? 0 : 9.99)).toFixed(2)}</span>
+            <span>${total.toFixed(2)}</span>
           </div>
+
+          <div className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs uppercase tracking-[0.12em] font-semibold text-slate-500 mb-2">Payment method</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("card")}
+                className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+                  paymentMethod === "card"
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-slate-200 text-slate-600 hover:border-primary-300"
+                }`}
+              >
+                Card
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("paypal")}
+                className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+                  paymentMethod === "paypal"
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-slate-200 text-slate-600 hover:border-primary-300"
+                }`}
+              >
+                PayPal
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-slate-500">Secure payment with encrypted processing.</p>
+          </div>
+
           <Link
             to="/checkout"
             className="block w-full rounded-full bg-primary-600 py-3 text-center text-base font-bold text-white hover:bg-primary-700 transition-colors"
           >
-            Proceed to checkout
+            Pay ${total.toFixed(2)} with {paymentMethod === "card" ? "Card" : "PayPal"}
           </Link>
+          <p className="mt-3 text-center text-xs text-slate-500">
+            You can review your details before placing the final order.
+          </p>
         </div>
       </div>
     </div>

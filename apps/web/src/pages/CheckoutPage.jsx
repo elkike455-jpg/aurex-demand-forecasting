@@ -5,7 +5,7 @@ import { Breadcrumbs } from "../components/Breadcrumbs";
 import { TrustBadges } from "../components/TrustBadges";
 
 export function CheckoutPage() {
-  const { items, totalPrice, totalItems } = useCart();
+  const { items, totalPrice, totalItems, clearCart } = useCart();
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [form, setForm] = useState({
@@ -29,6 +29,7 @@ export function CheckoutPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    clearCart();
     setPlaced(true);
     setTimeout(() => navigate("/"), 3000);
   };
@@ -47,7 +48,7 @@ export function CheckoutPage() {
   if (placed) {
     return (
       <div className="text-center py-16 max-w-md mx-auto">
-        <div className="text-6xl mb-4">✓</div>
+        <div className="text-6xl mb-4">OK</div>
         <h2 className="text-2xl font-bold text-slate-900 mb-2">Order placed!</h2>
         <p className="text-slate-600 mb-6">
           Thank you for your order. You will receive a confirmation email shortly.
@@ -65,18 +66,16 @@ export function CheckoutPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <Breadcrumbs items={[{ label: "Cart", to: "/cart" }, { label: "Checkout" }]} />
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
-        Checkout
-      </h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Checkout</h1>
 
       <p className="rounded-xl bg-primary-50 border border-primary-200 px-4 py-3 text-sm font-medium text-primary-800">
-        No account needed — continue as guest. We&apos;ll send your receipt to your email.
+        No account needed - continue as guest. We&apos;ll send your receipt to your email.
       </p>
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           <section className="rounded-xl border-2 border-slate-200 bg-white p-6">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Contact & shipping</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">Contact and shipping</h2>
             <div className="space-y-4">
               <input
                 type="email"
@@ -219,7 +218,7 @@ export function CheckoutPage() {
               <span>${total.toFixed(2)}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-600 mb-4">
-              <span aria-hidden>🔒</span>
+              <span aria-hidden>Secure</span>
               <span>Secure checkout. Your data is encrypted.</span>
             </div>
             <button
@@ -232,7 +231,7 @@ export function CheckoutPage() {
               to="/cart"
               className="mt-4 block text-center text-sm font-medium text-primary-600 hover:underline"
             >
-              ← Back to cart
+              &lt;- Back to cart
             </Link>
           </div>
         </div>

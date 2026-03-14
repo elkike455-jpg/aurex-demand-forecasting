@@ -35,6 +35,10 @@ export function CartProvider({ children }) {
     );
   }, []);
 
+  const clearCart = useCallback(() => {
+    setItems([]);
+  }, []);
+
   const totalItems = items.reduce((acc, i) => acc + i.quantity, 0);
   const totalPrice = items.reduce(
     (acc, i) => acc + i.product.price * i.quantity,
@@ -46,6 +50,7 @@ export function CartProvider({ children }) {
     addItem,
     removeItem,
     updateQuantity,
+    clearCart,
     totalItems,
     totalPrice,
   };

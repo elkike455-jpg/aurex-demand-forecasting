@@ -42,12 +42,11 @@ def build_features(df):
 def main():
     df = load_favorita_series(base_path="data/raw/favorita", store_nbr=1, family="GROCERY I")
 
-    split = int(len(df) * 0.8)
-    train_df = df.iloc[:split].copy()
-    test_df = df.iloc[split:].copy()
+    feat_df, feature_cols = build_features(df)
 
-    train_feat, feature_cols = build_features(train_df)
-    test_feat, _ = build_features(test_df)
+    split = int(len(feat_df) * 0.8)
+    train_feat = feat_df.iloc[:split].copy()
+    test_feat = feat_df.iloc[split:].copy()
 
     y_train = train_feat["sales"].values.astype(float)
     y_test = test_feat["sales"].values.astype(float)
