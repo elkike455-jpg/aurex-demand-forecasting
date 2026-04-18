@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 
-/**
- * Items: array of { label, to? }. Last item has no `to` (current page).
- */
 export function Breadcrumbs({ items }) {
+  const { t } = useLanguage();
+
   return (
     <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-slate-600 mb-6">
       <Link to="/" className="font-medium text-primary-600 hover:text-primary-700 hover:underline">
-        Home
+        {t("nav.home")}
       </Link>
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-2">

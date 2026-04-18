@@ -1,0 +1,328 @@
+.aurex-admin {
+  min-height: 100vh;
+  background: #fff;
+  color: #1f2937;
+}
+
+.aurex-admin-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 120px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.12);
+}
+
+.aurex-admin-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aurex-admin-logo-img {
+  width: 88px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.aurex-admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.aurex-admin-actions a,
+.aurex-admin-actions button {
+  color: #111827;
+}
+
+.aurex-admin-logout {
+  border: 0;
+  border-radius: 3px;
+  background: #1976d2;
+  color: white !important;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.aurex-admin-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+
+.aurex-admin-title {
+  text-align: center;
+  color: #1976d2;
+  font-size: 24px;
+  font-weight: 900;
+  margin: 12px 0 28px;
+}
+
+.aurex-admin-widgets {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 110px;
+  margin-bottom: 34px;
+}
+
+.aurex-widget {
+  min-height: 86px;
+  border-radius: 8px;
+  color: white;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 13px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.aurex-widget:hover {
+  transform: translateY(-4px);
+}
+
+.aurex-widget-label {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.aurex-widget-value {
+  margin-top: 4px;
+  font-size: 26px;
+  font-weight: 500;
+}
+
+.aurex-widget-icon {
+  font-size: 34px;
+  opacity: 0.94;
+}
+
+.aurex-admin-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 28px;
+  overflow-x: auto;
+}
+
+.aurex-admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 13px 18px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+
+.aurex-admin-tab.active {
+  color: #1976d2;
+  border-bottom-color: #1976d2;
+}
+
+.aurex-panel {
+  background: white;
+}
+
+.aurex-chart-title {
+  text-align: center;
+  margin: 28px 0 14px;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.aurex-chart-card {
+  width: min(860px, 100%);
+  margin: 0 auto 22px;
+  padding: 6px 8px;
+}
+
+.aurex-bars {
+  height: 230px;
+  display: flex;
+  align-items: end;
+  gap: 36px;
+  border-left: 1px solid #cfd6df;
+  border-bottom: 1px solid #cfd6df;
+  background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+  background-size: 100% 45px, 120px 100%;
+  padding: 20px 24px 0;
+}
+
+.aurex-bar-wrap {
+  flex: 1;
+  min-width: 54px;
+  text-align: center;
+}
+
+.aurex-bar {
+  width: 100%;
+  min-height: 8px;
+  border-radius: 2px 2px 0 0;
+  background: #8884d8;
+}
+
+.aurex-bar-label {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.aurex-area {
+  width: 100%;
+  height: 260px;
+  display: block;
+}
+
+.aurex-pie-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.aurex-pie {
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  background: conic-gradient(#0088fe 0 55%, #00c49f 55% 68%, #ffbb28 68% 84%, #8884d8 84% 100%);
+  display: grid;
+  place-items: center;
+}
+
+.aurex-pie::after {
+  content: "AUREX";
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  background: white;
+  display: grid;
+  place-items: center;
+  color: #1976d2;
+  font-weight: 900;
+}
+
+.aurex-table-card {
+  max-height: 520px;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08);
+}
+
+.aurex-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.aurex-table th {
+  position: sticky;
+  top: 0;
+  background: white;
+  color: #1976d2;
+  font-weight: 900;
+  text-align: left;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.aurex-table td {
+  padding: 13px 18px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.aurex-table a {
+  color: #1976d2;
+  font-weight: 700;
+}
+
+.aurex-form-card {
+  width: min(680px, 100%);
+  margin: 0 auto 28px;
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08);
+}
+
+.aurex-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.aurex-input {
+  width: 100%;
+  border: 1px solid #cfd6df;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.aurex-button {
+  border: 0;
+  border-radius: 3px;
+  background: #1976d2;
+  color: white;
+  padding: 9px 16px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.aurex-button-danger {
+  background: #dc2626;
+}
+
+.aurex-status {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1000px) {
+  .aurex-admin-nav {
+    gap: 24px;
+    justify-content: space-between;
+    padding: 0 18px;
+  }
+
+  .aurex-admin-widgets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .aurex-admin-actions {
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .aurex-admin-widgets,
+  .aurex-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aurex-bars {
+    gap: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}

@@ -1,0 +1,4 @@
+This final graph uses a top-2 neighbors per product rule on the hybrid similarity matrix.
+It was chosen because threshold-only views were too sparse to represent all products clearly in one figure.
+The graph retains both within-category and cross-product links while keeping every product visible in a readable undirected structure.
+Most connected products by retained edge strength are FOODS_3_420_CA_3_validation (2.661), FOODS_3_524_CA_4_validation (2.351), FOODS_3_170_CA_3_validation (1.662), FOODS_3_641_CA_3_validation (1.583), HOUSEHOLD_2_051_CA_1_validation (1.494).

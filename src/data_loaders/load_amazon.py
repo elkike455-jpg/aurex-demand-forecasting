@@ -7,8 +7,30 @@ import numpy as np
 import pandas as pd
 
 
-def _iter_jsonl_gz(path):
-    with gzip.open(path, "rt", encoding="utf-8") as f:
+def _resolve_amazon_path(base_path, filename):
+    """Resolve either .jsonl.gz or plain .json files in the configured folder."""
+    candidates = []
+
+    direct = os.path.join(base_path, filename)
+    candidates.append(direct)
+
+    if filename.endswith(".jsonl.gz"):
+        candidates.append(os.path.join(base_path, filename[:-3]))
+    elif filename.endswith(".jsonl"):
+        candidates.append(os.path.join(base_path, filename + ".gz"))
+
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+
+    raise FileNotFoundError(
+        f"Missing Amazon review file. Tried: {', '.join(candidates)}"
+    )
+
+
+def _iter_jsonl(path):
+    opener = gzip.open if path.endswith(".gz") else open
+    with opener(path, "rt", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -30,13 +52,11 @@ def load_amazon_series(
     high-activity ASIN and counting reviews per day as sales proxy.
     Output columns: date, sales, price
     """
-    path = os.path.join(base_path, filename)
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Missing file: {path}")
+    path = _resolve_amazon_path(base_path, filename)
 
     asin_counts = Counter()
     sampled_rows = []
-    for i, row in enumerate(_iter_jsonl_gz(path), start=1):
+    for i, row in enumerate(_iter_jsonl(path), start=1):
         asin = row.get("parent_asin") or row.get("asin")
         ts = row.get("timestamp")
         if asin is None or ts is None:

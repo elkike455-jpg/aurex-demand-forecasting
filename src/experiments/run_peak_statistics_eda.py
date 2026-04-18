@@ -99,7 +99,8 @@ def _plot_series_with_peaks(df, peaks, title, out_path):
 
 
 def _iter_jsonl_gz(path, max_rows=None):
-    with gzip.open(path, "rt", encoding="utf-8") as f:
+    opener = gzip.open if path.endswith(".gz") else open
+    with opener(path, "rt", encoding="utf-8") as f:
         for i, line in enumerate(f, start=1):
             if max_rows is not None and i > int(max_rows):
                 break
@@ -189,6 +190,10 @@ def _load_favorita_selected(favorita_base_path, series_ids, store_nbr=1, chunksi
 
 def _load_amazon_selected(amazon_base_path, amazon_file, series_ids, max_rows=100000):
     path = os.path.join(amazon_base_path, amazon_file)
+    if not os.path.exists(path) and amazon_file.endswith(".jsonl.gz"):
+        alt = os.path.join(amazon_base_path, amazon_file[:-3])
+        if os.path.exists(alt):
+            path = alt
     if not os.path.exists(path):
         raise FileNotFoundError(f"Missing {path}")
 

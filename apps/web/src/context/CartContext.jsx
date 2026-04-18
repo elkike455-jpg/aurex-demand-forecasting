@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+﻿import { createContext, useContext, useState, useCallback } from "react";
 
 const CartContext = createContext(null);
 
@@ -65,3 +65,4 @@ export function useCart() {
   if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;
 }
+

@@ -1,0 +1,7 @@
+Hybrid similarity was defined as 0.40 * sales_similarity + 0.35 * metadata_similarity + 0.25 * profile_similarity.
+The sales block combines positive daily Pearson, weekly Pearson, and log1p Pearson to stabilize sparse daily series.
+The metadata block reuses the same category / department / store / state scoring idea from notebook29.
+The demand-profile block connects products with similar mean, spread, sparsity, and intermittency characteristics even when raw day-level correlation is weak.
+Top hybrid pairs: FOODS_3_170_CA_3_validation vs FOODS_3_641_CA_3_validation = 0.605; HOUSEHOLD_1_492_CA_1_validation vs HOUSEHOLD_1_531_CA_1_validation = 0.601; FOODS_3_420_CA_3_validation vs FOODS_3_524_CA_4_validation = 0.586; HOBBIES_1_133_CA_4_validation vs HOBBIES_1_284_CA_4_validation = 0.579; FOODS_3_420_CA_3_validation vs FOODS_3_641_CA_3_validation = 0.578
+Within-category hybrid connectivity ranks as HOUSEHOLD: 0.470, HOBBIES: 0.433, FOODS: 0.427.
+Hybrid threshold counts are 0.50: 9 edges, 0.80: 0 edges, 0.90: 0 edges, 0.99: 0 edges, so the hybrid graph remains meaningful at moderate thresholds even though the raw Pearson graph did not.

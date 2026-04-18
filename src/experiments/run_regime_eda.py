@@ -9,6 +9,22 @@ import numpy as np
 import pandas as pd
 
 
+def _resolve_amazon_path(base_path, filename):
+    """Resolve either compressed or plain Amazon review files."""
+    candidates = [os.path.join(base_path, filename)]
+
+    if filename.endswith(".jsonl.gz"):
+        candidates.append(os.path.join(base_path, filename[:-3]))
+    elif filename.endswith(".jsonl"):
+        candidates.append(os.path.join(base_path, filename + ".gz"))
+
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+
+    raise FileNotFoundError(f"Missing Amazon file. Tried: {', '.join(candidates)}")
+
+
 def _safe_name(text):
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", str(text))
 
@@ -87,8 +103,9 @@ def _plot_series(date, y, title, out_path):
     plt.close()
 
 
-def _iter_jsonl_gz(path, max_rows=None):
-    with gzip.open(path, "rt", encoding="utf-8") as f:
+def _iter_jsonl(path, max_rows=None):
+    opener = gzip.open if path.endswith(".gz") else open
+    with opener(path, "rt", encoding="utf-8") as f:
         for i, line in enumerate(f, start=1):
             if max_rows is not None and i > int(max_rows):
                 break
@@ -225,13 +242,11 @@ def load_favorita_family_series(
 
 
 def load_amazon_category_series(base_path, filename, n_products=12, max_rows=300000):
-    path = os.path.join(base_path, filename)
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Missing {path}")
+    path = _resolve_amazon_path(base_path, filename)
 
     asin_counts = Counter()
     rows = []
-    for row in _iter_jsonl_gz(path, max_rows=max_rows):
+    for row in _iter_jsonl(path, max_rows=max_rows):
         asin = row.get("parent_asin") or row.get("asin")
         ts = row.get("timestamp")
         if asin is None or ts is None:

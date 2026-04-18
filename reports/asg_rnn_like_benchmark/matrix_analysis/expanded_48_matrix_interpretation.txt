@@ -1,0 +1,4 @@
+The expanded matrix contains 48 products, compared with 16 in Notebook 12.
+Raw Pearson correlation remains sparse at threshold 0.50: 23 retained pairs.
+Notebook-12-style hybrid similarity is denser at threshold 0.50: 183 retained pairs, with largest component size 29.
+Moving from 16 to 48 products gives the graph more candidate neighbors, especially within category/store/profile groups, but raw daily co-movement alone is still weaker than the hybrid relationship score.

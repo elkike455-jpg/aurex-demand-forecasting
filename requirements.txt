@@ -2,9 +2,11 @@ numpy
 pandas
 matplotlib
 scikit-learn
+statsmodels
 torch
 tensorflow
 fastapi
 uvicorn
 psycopg2-binary
 sqlalchemy
+statsforecast>=1.7.0

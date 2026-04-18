@@ -1,16 +1,24 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { TrustBadges } from "../components/TrustBadges";
+import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
+import { useCommerce } from "../context/CommerceContext";
+import { createCheckoutPayment } from "../payments/paymentGateway";
+import { emailReceipt } from "../receipts/receiptEmail";
 
 export function CheckoutPage() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
   const navigate = useNavigate();
+  const { t } = useLanguage();
+  const { user } = useAuth();
+  const { createOrder, recordPayment, products, sellers } = useCommerce();
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [form, setForm] = useState({
-    email: "",
-    fullName: "",
+    email: user?.email || "",
+    fullName: user?.fullName || "",
     address: "",
     city: "",
     zip: "",
@@ -19,6 +27,8 @@ export function CheckoutPage() {
     cvv: "",
   });
   const [placed, setPlaced] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const shipping = totalPrice >= 99 ? 0 : 9.99;
   const total = totalPrice + shipping;
@@ -27,19 +37,62 @@ export function CheckoutPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    clearCart();
-    setPlaced(true);
-    setTimeout(() => navigate("/"), 3000);
+    setError("");
+    setIsSubmitting(true);
+    try {
+      const order = createOrder({
+        user: user || { id: "guest", email: form.email, fullName: form.fullName },
+        items,
+        shipping,
+        paymentStatus: "pending",
+        status: "pending",
+        shippingAddress: {
+          fullName: form.fullName,
+          email: form.email,
+          address: form.address,
+          city: form.city,
+          zip: form.zip,
+        },
+      });
+      const payment = await createCheckoutPayment({ order });
+      const recordedPayment = recordPayment({
+        order,
+        provider: payment.provider,
+        providerTransactionId: payment.providerTransactionId,
+        status: payment.status,
+      });
+      try {
+        await emailReceipt({
+          order: { ...order, status: payment.status === "succeeded" ? "paid" : order.status, paymentStatus: payment.status },
+          payment: recordedPayment,
+          products,
+          sellers,
+        });
+      } catch (receiptError) {
+        console.warn("Receipt email could not be sent", receiptError);
+      }
+      clearCart();
+      if (payment.redirectUrl) {
+        window.location.href = payment.redirectUrl;
+        return;
+      }
+      setPlaced(true);
+      navigate(`/receipt/${order.id}`, { replace: true });
+    } catch (checkoutError) {
+      setError(checkoutError.message || "Payment failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (items.length === 0 && !placed) {
     return (
       <div className="text-center py-16">
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Your cart is empty</h2>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">{t("cart.emptyTitle")}</h2>
         <Link to="/products" className="text-primary-600 font-semibold hover:underline">
-          Add items to checkout
+          {t("checkout.emptyLink")}
         </Link>
       </div>
     );
@@ -49,15 +102,15 @@ export function CheckoutPage() {
     return (
       <div className="text-center py-16 max-w-md mx-auto">
         <div className="text-6xl mb-4">OK</div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Order placed!</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t("checkout.placedTitle")}</h2>
         <p className="text-slate-600 mb-6">
-          Thank you for your order. You will receive a confirmation email shortly.
+          {t("checkout.placedBlurb")}
         </p>
         <Link
           to="/"
           className="inline-block rounded-full bg-primary-600 px-8 py-3 text-base font-bold text-white hover:bg-primary-700 transition-colors"
         >
-          Back to home
+          {t("checkout.backHome")}
         </Link>
       </div>
     );
@@ -65,22 +118,22 @@ export function CheckoutPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <Breadcrumbs items={[{ label: "Cart", to: "/cart" }, { label: "Checkout" }]} />
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Checkout</h1>
+      <Breadcrumbs items={[{ label: t("header.cart"), to: "/cart" }, { label: t("checkout.title") }]} />
+      <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("checkout.title")}</h1>
 
       <p className="rounded-xl bg-primary-50 border border-primary-200 px-4 py-3 text-sm font-medium text-primary-800">
-        No account needed - continue as guest. We&apos;ll send your receipt to your email.
+        {t("checkout.guestNotice")}
       </p>
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           <section className="rounded-xl border-2 border-slate-200 bg-white p-6">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Contact and shipping</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">{t("checkout.contactShipping")}</h2>
             <div className="space-y-4">
               <input
                 type="email"
                 name="email"
-                placeholder="Email"
+                placeholder={t("checkout.email")}
                 value={form.email}
                 onChange={handleChange}
                 required
@@ -89,7 +142,7 @@ export function CheckoutPage() {
               <input
                 type="text"
                 name="fullName"
-                placeholder="Full name"
+                placeholder={t("checkout.fullName")}
                 value={form.fullName}
                 onChange={handleChange}
                 required
@@ -98,7 +151,7 @@ export function CheckoutPage() {
               <input
                 type="text"
                 name="address"
-                placeholder="Address"
+                placeholder={t("checkout.address")}
                 value={form.address}
                 onChange={handleChange}
                 required
@@ -108,7 +161,7 @@ export function CheckoutPage() {
                 <input
                   type="text"
                   name="city"
-                  placeholder="City"
+                  placeholder={t("checkout.city")}
                   value={form.city}
                   onChange={handleChange}
                   required
@@ -117,7 +170,7 @@ export function CheckoutPage() {
                 <input
                   type="text"
                   name="zip"
-                  placeholder="ZIP"
+                  placeholder={t("checkout.zip")}
                   value={form.zip}
                   onChange={handleChange}
                   required
@@ -128,7 +181,7 @@ export function CheckoutPage() {
           </section>
 
           <section className="rounded-xl border-2 border-slate-200 bg-white p-6">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Payment</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">{t("checkout.payment")}</h2>
             <div className="flex gap-4 mb-4">
               <label className="flex-1 cursor-pointer">
                 <input
@@ -139,7 +192,7 @@ export function CheckoutPage() {
                   className="sr-only peer"
                 />
                 <span className="block rounded-lg border-2 border-slate-200 px-4 py-3 text-center font-medium peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700">
-                  Credit / Debit card
+                  {t("checkout.creditDebit")}
                 </span>
               </label>
               <label className="flex-1 cursor-pointer">
@@ -160,7 +213,7 @@ export function CheckoutPage() {
                 <input
                   type="text"
                   name="card"
-                  placeholder="Card number"
+                  placeholder={t("checkout.cardNumber")}
                   value={form.card}
                   onChange={handleChange}
                   required={paymentMethod === "card"}
@@ -190,7 +243,7 @@ export function CheckoutPage() {
             )}
             {paymentMethod === "paypal" && (
               <p className="text-sm text-slate-600 py-2">
-                You&apos;ll be redirected to PayPal to complete payment securely.
+                {t("checkout.paypalRedirect")}
               </p>
             )}
           </section>
@@ -198,40 +251,42 @@ export function CheckoutPage() {
 
         <div>
           <div className="sticky top-24 rounded-xl border-2 border-slate-200 bg-white p-6">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Order summary</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">{t("checkout.orderSummary")}</h2>
             <p className="text-slate-600 mb-4">
-              {totalItems} {totalItems === 1 ? "item" : "items"}
+              {totalItems} {t(totalItems === 1 ? "cart.item_one" : "cart.item_other")}
             </p>
             <div className="space-y-2 text-slate-600">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>{t("cart.subtotal")}</span>
                 <span>${totalPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                <span>{t("cart.shipping")}</span>
+                <span>{shipping === 0 ? t("cart.free") : `$${shipping.toFixed(2)}`}</span>
               </div>
             </div>
             <div className="border-t border-slate-200 my-4" />
             <div className="flex justify-between text-lg font-bold text-slate-900 mb-6">
-              <span>Total</span>
+              <span>{t("cart.total")}</span>
               <span>${total.toFixed(2)}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-600 mb-4">
               <span aria-hidden>Secure</span>
-              <span>Secure checkout. Your data is encrypted.</span>
+              <span>{t("checkout.secure")}</span>
             </div>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full rounded-full bg-primary-600 py-3 text-base font-bold text-white hover:bg-primary-700 active:scale-[0.98] transition shadow-md hover:shadow-lg"
             >
-              Place order
+              {isSubmitting ? "Processing..." : t("checkout.placeOrder")}
             </button>
+            {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm font-bold text-red-700">{error}</p>}
             <Link
               to="/cart"
               className="mt-4 block text-center text-sm font-medium text-primary-600 hover:underline"
             >
-              &lt;- Back to cart
+              {t("checkout.backCart")}
             </Link>
           </div>
         </div>
@@ -243,3 +298,4 @@ export function CheckoutPage() {
     </div>
   );
 }
+

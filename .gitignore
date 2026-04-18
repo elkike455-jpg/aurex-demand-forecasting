@@ -101,6 +101,7 @@ models/*.pth
 data/raw/
 data/processed/
 *.csv
+Favorita/train.csv.7z
 
 ########################################
 # Framework-specific

@@ -1,4 +1,4 @@
-export const mockProducts = [
+﻿export const mockProducts = [
   {
     id: 1,
     name: "Wireless Bluetooth Earbuds Pro",
@@ -22,7 +22,7 @@ export const mockProducts = [
   },
   {
     id: 3,
-    name: "Running sneakers – midnight edition",
+    name: "Running sneakers â€“ midnight edition",
     price: 89.99,
     oldPrice: 119.99,
     image:
@@ -64,4 +64,5 @@ export const mockReviews = [
 export function getReviewsByProductId(productId) {
   return mockReviews.filter((r) => r.productId === Number(productId));
 }
+
 

@@ -12,6 +12,24 @@ from src.metrics.behavioral_metrics import behavioral_metrics
 from src.models.regime_forecast_engine import RegimeForecastEngine
 
 
+def _resolve_amazon_candidate(base_path, candidates):
+    """Pick the first Amazon category file present, supporting .jsonl and .jsonl.gz."""
+    for filename in candidates:
+        direct = os.path.join(base_path, filename)
+        if os.path.exists(direct):
+            return filename
+
+        if filename.endswith(".jsonl.gz"):
+            alt = filename[:-3]
+            if os.path.exists(os.path.join(base_path, alt)):
+                return alt
+        elif filename.endswith(".jsonl"):
+            alt = filename + ".gz"
+            if os.path.exists(os.path.join(base_path, alt)):
+                return alt
+    return None
+
+
 def train_test_split_ts(df, test_days=365):
     """Time-aware split: keep final block as test window."""
     df = df.sort_values("date").reset_index(drop=True)
@@ -188,11 +206,14 @@ def main():
     # Prioritize household-like category to stay close to M5 HOUSEHOLD.
     amazon_candidates = [
         "Health_and_Household.jsonl.gz",
+        "Health_and_Household.jsonl",
         "Home_and_Kitchen.jsonl.gz",
+        "Home_and_Kitchen.jsonl",
         "Cell_Phones_and_Accessories.jsonl.gz",  # fallback if only this file is available
+        "Cell_Phones_and_Accessories.jsonl",
     ]
     amazon_base = "data/raw/amazon_2023/review_categories"
-    amazon_file = next((f for f in amazon_candidates if os.path.exists(os.path.join(amazon_base, f))), None)
+    amazon_file = _resolve_amazon_candidate(amazon_base, amazon_candidates)
 
     if "amazon" in selected and amazon_file is not None:
         append_dataset_result(
@@ -204,7 +225,7 @@ def main():
                 top_rank=1,
                 max_rows=args.amazon_max_rows,
             ),
-            meta={"series": f"category={amazon_file.replace('.jsonl.gz', '')},top_rank=1,max_rows={args.amazon_max_rows}"},
+            meta={"series": f"category={amazon_file.replace('.jsonl.gz', '').replace('.jsonl', '')},top_rank=1,max_rows={args.amazon_max_rows}"},
         )
 
     if not results:

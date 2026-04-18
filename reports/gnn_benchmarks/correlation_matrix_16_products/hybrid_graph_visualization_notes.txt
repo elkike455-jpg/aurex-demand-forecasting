@@ -1,0 +1,4 @@
+The improved formal graph keeps the exact same threshold 0.50 edge set as before; only the layout was compacted to reduce empty space and make labels easier to read.
+The exploratory graph uses threshold 0.45, not to replace the formal result, but to surface medium-strength relationships that are visually hidden at 0.50.
+The 0.50 graph remains sparse because only a small number of hybrid similarities clear that stricter cutoff.
+The 0.45 view reveals a denser FOODS-centered backbone and makes within-category neighborhoods easier to inspect, which is closer in spirit to the relationship view from notebook29.

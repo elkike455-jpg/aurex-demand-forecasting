@@ -1,4 +1,6 @@
 import argparse
+import gzip
+import json
 import os
 from collections import defaultdict
 
@@ -109,11 +111,28 @@ def _load_favorita_selected(favorita_base_path, series_ids, store_nbr=1, chunksi
     return series_map
 
 
-def _iter_jsonl_gz(path, max_rows=None):
-    import gzip
-    import json
+def _resolve_amazon_path(base_path, filename):
+    """Resolve either compressed or plain Amazon review files."""
+    candidates = []
 
-    with gzip.open(path, "rt", encoding="utf-8") as f:
+    direct = os.path.join(base_path, filename)
+    candidates.append(direct)
+
+    if filename.endswith(".jsonl.gz"):
+        candidates.append(os.path.join(base_path, filename[:-3]))
+    elif filename.endswith(".jsonl"):
+        candidates.append(os.path.join(base_path, filename + ".gz"))
+
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+
+    raise FileNotFoundError(f"Missing Amazon file. Tried: {', '.join(candidates)}")
+
+
+def _iter_jsonl(path, max_rows=None):
+    opener = gzip.open if path.endswith(".gz") else open
+    with opener(path, "rt", encoding="utf-8") as f:
         for i, line in enumerate(f, start=1):
             if max_rows is not None and i > int(max_rows):
                 break
@@ -127,13 +146,11 @@ def _iter_jsonl_gz(path, max_rows=None):
 
 
 def _load_amazon_selected(amazon_base_path, amazon_file, series_ids, max_rows=100000):
-    path = os.path.join(amazon_base_path, amazon_file)
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Missing {path}")
+    path = _resolve_amazon_path(amazon_base_path, amazon_file)
 
     selected = set(series_ids)
     daily_map = {sid: defaultdict(float) for sid in selected}
-    for row in _iter_jsonl_gz(path, max_rows=max_rows):
+    for row in _iter_jsonl(path, max_rows=max_rows):
         asin = row.get("parent_asin") or row.get("asin")
         ts = row.get("timestamp")
         if asin not in selected or ts is None:

@@ -1,36 +1,42 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { getProductById, getRelatedProducts, getReviewsByProductId } from "../../mocks/products";
+import { getReviewsByProductId } from "../../mocks/products";
 import { useCart } from "../context/CartContext";
 import { ProductCard } from "../components/ProductCard";
 import { Breadcrumbs } from "../components/Breadcrumbs";
+import { useLanguage } from "../context/LanguageContext";
+import { useCommerce } from "../context/CommerceContext";
 
 export function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const product = getProductById(id);
+  const { products, sellers } = useCommerce();
+  const product = products.find((item) => String(item.id) === String(id));
+  const seller = product ? sellers.find((item) => item.id === product.sellerId) : null;
   const { addItem } = useCart();
+  const { t, translateProduct, translateReview } = useLanguage();
+  const displayProduct = product ? translateProduct(product) : null;
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    if (product) document.title = `${product.name} | AUREX`;
-    return () => { document.title = "AUREX | Futuristic Marketplace"; };
-  }, [product]);
+    if (displayProduct) document.title = `${displayProduct.name} | AUREX`;
+    return () => { document.title = t("productDetail.titleDefault"); };
+  }, [displayProduct, t]);
 
   if (!product) {
     return (
       <div className="text-center py-16">
-        <h2 className="text-2xl font-bold text-slate-800">Product not found</h2>
+        <h2 className="text-2xl font-bold text-slate-800">{t("productDetail.notFound")}</h2>
         <Link to="/products" className="mt-4 inline-block text-primary-600 font-semibold hover:underline">
-          Back to all products
+          {t("productDetail.backToProducts")}
         </Link>
       </div>
     );
   }
 
-  const related = getRelatedProducts(id);
-  const reviews = getReviewsByProductId(id);
+  const related = products.filter((item) => String(item.id) !== String(id)).slice(0, 4);
+  const reviews = getReviewsByProductId(id).map(translateReview);
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -42,24 +48,27 @@ export function ProductDetailPage() {
     <div className="space-y-12">
       <Breadcrumbs
         items={[
-          { label: "Products", to: "/products" },
-          { label: product.name },
+          { label: t("productDetail.products"), to: "/products" },
+          { label: displayProduct.name },
         ]}
       />
 
       <div className="grid gap-8 md:grid-cols-2">
         <div className="relative aspect-square max-h-[480px] rounded-2xl overflow-hidden bg-slate-100 ring-2 ring-slate-100 shadow-lg transition hover:ring-primary-200">
           <img
-            src={product.image}
-            alt={product.name}
+            src={displayProduct.image}
+            alt={displayProduct.name}
             className="w-full h-full object-cover"
           />
         </div>
 
         <div className="flex flex-col">
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-            {product.name}
+            {displayProduct.name}
           </h1>
+          <p className="mb-3 text-sm font-bold uppercase tracking-wide text-primary-700">
+            Vendido por {seller?.publicName || seller?.companyName || "AUREX"}
+          </p>
           <div className="flex items-center gap-3 mb-4">
             <span className="text-2xl font-bold text-slate-900">
               ${product.price.toFixed(2)}
@@ -71,23 +80,23 @@ export function ProductDetailPage() {
             )}
             {product.oldPrice && (
               <span className="rounded-full bg-primary-100 px-3 py-1 text-sm font-bold text-primary-700">
-                SALE
+                {t("products.sale")}
               </span>
             )}
           </div>
           <div className="flex items-center gap-2 text-amber-500 mb-6">
-            <span className="text-lg">{"★".repeat(Math.round(product.rating))}</span>
+            <span className="text-lg">{"â˜…".repeat(Math.round(product.rating))}</span>
             <span className="text-slate-600 font-medium">
-              {product.rating.toFixed(1)} / 5
+              {t("products.ratingOutOf", { rating: product.rating.toFixed(1) })}
             </span>
           </div>
           <p className="text-slate-600 leading-relaxed mb-8">
-            {product.description}
+            {displayProduct.description}
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-700">Quantity:</span>
+              <span className="text-sm font-semibold text-slate-700">{t("productDetail.quantity")}</span>
               <input
                 type="number"
                 min={1}
@@ -101,7 +110,7 @@ export function ProductDetailPage() {
               onClick={handleAddToCart}
               className="rounded-full bg-primary-600 px-8 py-3 text-base font-bold text-white hover:bg-primary-700 active:scale-[0.98] transition shadow-md hover:shadow-lg"
             >
-              {added ? "Added! ✓" : "Add to cart"}
+              {added ? t("productDetail.added") : t("products.addToCart")}
             </button>
             <button
               onClick={() => {
@@ -110,7 +119,7 @@ export function ProductDetailPage() {
               }}
               className="rounded-full border-2 border-slate-300 px-6 py-3 text-base font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-600 active:scale-[0.98] transition"
             >
-              Buy now
+              {t("productDetail.buyNow")}
             </button>
           </div>
         </div>
@@ -119,13 +128,13 @@ export function ProductDetailPage() {
       {/* Customer reviews */}
       {reviews.length > 0 && (
         <section className="rounded-2xl border-2 border-slate-200 bg-white p-6 md:p-8">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">Customer reviews</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-4">{t("productDetail.customerReviews")}</h2>
           <div className="space-y-4">
             {reviews.map((r) => (
               <div key={r.id} className="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-semibold text-slate-800">{r.author}</span>
-                  <span className="text-amber-500">{"★".repeat(r.rating)}</span>
+                  <span className="text-amber-500">{"â˜…".repeat(r.rating)}</span>
                   <span className="text-sm text-slate-400">{r.date}</span>
                 </div>
                 <p className="text-slate-600 text-sm">{r.text}</p>
@@ -138,7 +147,7 @@ export function ProductDetailPage() {
       {/* Related products */}
       {related.length > 0 && (
         <section>
-          <h2 className="text-xl font-bold text-slate-900 mb-4">You may also like</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-4">{t("productDetail.youMayLike")}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
@@ -149,3 +158,4 @@ export function ProductDetailPage() {
     </div>
   );
 }
+

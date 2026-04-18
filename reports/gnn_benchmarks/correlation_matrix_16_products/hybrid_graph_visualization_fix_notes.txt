@@ -1,0 +1,4 @@
+This visualization-fix section keeps the same threshold 0.50 graph result and only changes the drawing strategy.
+Connected components are laid out separately and then placed apart on a grid, which keeps edges from being hidden behind large nodes and reduces wasted space.
+Edges are darker and thicker, and edge labels are drawn in boxed annotations so weights such as 0.55 and 0.60 remain readable.
+The 0.45 figure is still exploratory only; it reveals additional medium-strength relationships while preserving the same hybrid similarity matrix.

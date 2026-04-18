@@ -1,0 +1,6 @@
+The same 16-product subset from notebook29 was recovered through load_m5_panel_subset with the original CA / seed=42 / max_days=365 configuration.
+The strongest product-to-product relationships are concentrated in a small set of positive pairs, which supports threshold-based graph construction from the correlation matrix.
+Top correlated pairs: FOODS_2_397_CA_2_validation vs FOODS_3_228_CA_1_validation = 0.205; FOODS_3_420_CA_3_validation vs FOODS_3_524_CA_4_validation = 0.185; FOODS_3_228_CA_1_validation vs HOUSEHOLD_1_531_CA_1_validation = 0.164; FOODS_2_397_CA_2_validation vs FOODS_3_524_CA_4_validation = 0.154; HOUSEHOLD_2_051_CA_1_validation vs HOUSEHOLD_2_221_CA_4_validation = 0.150
+Within-category average connectivity ranks as HOBBIES: 0.029, FOODS: 0.024, HOUSEHOLD: -0.006.
+Hub-like products by absolute correlation strength are FOODS_3_228_CA_1_validation (1.000), FOODS_2_397_CA_2_validation (0.991), FOODS_3_170_CA_3_validation (0.956), HOUSEHOLD_2_051_CA_1_validation (0.941), FOODS_3_420_CA_3_validation (0.929).
+Correlation-only threshold counts are 0.50: 0 edges, 0.80: 0 edges, 0.90: 0 edges, 0.99: 0 edges, which means a pure correlation graph at 0.5 or above would be empty for this subset and window.
